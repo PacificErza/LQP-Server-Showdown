@@ -60,7 +60,7 @@ var commands = exports.commands = {
 			buffer.push((Config.groups[r] ? Config.groups[r].name + "s (" + r + ")" : r) + ":\n" + nickList.join(", "));
 		});
 
-		if (!buffer.length) buffer = "This server has no global authority.";
+		if (!buffer.length) buffer = "Ce serveur n'a pas de staff.";
 		connection.popup(buffer.join("\n\n"));
 	},
 
@@ -89,18 +89,18 @@ var commands = exports.commands = {
 		}
 		if (typeof avatar === 'number' && (!avatar || avatar > 294 || avatar < 1)) {
 			if (!parts[1]) {
-				this.sendReply("Invalid avatar.");
+				this.sendReply("Avatar invalide.");
 			}
 			return false;
 		}
 
 		user.avatar = avatar;
 		if (!parts[1]) {
-			this.sendReply("Avatar changed to:\n" +
+			this.sendReply("Avatar changé pour:\n" +
 				'|raw|<img src="//play.pokemonshowdown.com/sprites/trainers/' + (typeof avatar === 'string' ? avatar.substr(1) : avatar) + '.png" alt="" width="80" height="80" />');
 		}
 	},
-	avatarhelp: ["/avatar [avatar number 1 to 293] - Change your trainer sprite."],
+	avatarhelp: ["/avatar [avatar number 1 to 293] - Changer ton avatar de Dresseur."],
 
 	signout: 'logout',
 	logout: function (target, room, user) {
@@ -109,10 +109,10 @@ var commands = exports.commands = {
 
 	requesthelp: 'report',
 	report: function (target, room, user) {
-		if (room.id === 'help') {
-			this.sendReply("Ask one of the Moderators (@) in the Help room.");
+		if (room.id === 'aidesuggestions') {
+			this.sendReply("Adresse-toi à un membre du staff ou à un membre de la room \"Aide & Suggestions".");
 		} else {
-			this.parse('/join help');
+			this.parse('/join aidesuggestions');
 		}
 	},
 
@@ -120,11 +120,11 @@ var commands = exports.commands = {
 	reply: function (target, room, user) {
 		if (!target) return this.parse('/help reply');
 		if (!user.lastPM) {
-			return this.sendReply("No one has PMed you yet.");
+			return this.sendReply("Personne ne t\'a envoyé de message privé.");
 		}
 		return this.parse('/msg ' + (user.lastPM || '') + ', ' + target);
 	},
-	replyhelp: ["/reply OR /r [message] - Send a private message to the last person you received a message from, or sent a message to."],
+	replyhelp: ["/reply OU /r [message] - Envoie un message privé à la dernière personne qui t\'en a envoyé un, ou à qui tu en as envoyé un."],
 
 	pm: 'msg',
 	whisper: 'msg',
@@ -134,16 +134,16 @@ var commands = exports.commands = {
 		target = this.splitTarget(target);
 		var targetUser = this.targetUser;
 		if (!target) {
-			this.sendReply("You forgot the comma.");
+			this.sendReply("Tu as oublié la virgule.");
 			return this.parse('/help msg');
 		}
 		this.pmTarget = (targetUser || this.targetUsername);
 		if (!targetUser || !targetUser.connected) {
 			if (targetUser && !targetUser.connected) {
-				this.errorReply("User " + this.targetUsername + " is offline.");
+				this.errorReply("L\'utilisateur " + this.targetUsername + " est déconnecté.");
 				return;
 			} else {
-				this.errorReply("User "  + this.targetUsername + " not found. Did you misspell their name?");
+				this.errorReply("Utilisateur "  + this.targetUsername + " introuvable. Es-tu sûr d\'avoir bien écrit son pseudo ?");
 				return this.parse('/help msg');
 			}
 			return;
