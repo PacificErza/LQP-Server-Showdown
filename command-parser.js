@@ -73,21 +73,21 @@ var writeModlog = exports.writeModlog = function (roomid, text) {
  */
 function canTalk(user, room, connection, message, targetUser) {
 	if (!user.named) {
-		connection.popup("You must choose a name before you can talk.");
+		connection.popup("Tu dois choisir un nom avant de pouvoir parler.");
 		return false;
 	}
 	if (room && user.locked) {
-		connection.sendTo(room, "You are locked from talking in chat.");
+		connection.sendTo(room, "Tu es lock et tu ne peux pas parler sur cette room.");
 		return false;
 	}
 	if (room && room.isMuted(user)) {
-		connection.sendTo(room, "You are muted and cannot talk in this room.");
+		connection.sendTo(room, "Tu es mute et tu ne peux pas parler dans cette room.");
 		return false;
 	}
 	if (room && room.modchat) {
 		if (room.modchat === 'crash') {
 			if (!user.can('ignorelimits')) {
-				connection.sendTo(room, "Because the server has crashed, you cannot speak in lobby chat.");
+				connection.sendTo(room, "Étant donné que le serveur a crash, tu ne peux pas parler sur le lobby");
 				return false;
 			}
 		} else {
@@ -101,24 +101,24 @@ function canTalk(user, room, connection, message, targetUser) {
 			}
 			if (room.modchat === 'autoconfirmed') {
 				if (!user.autoconfirmed && userGroup === ' ') {
-					connection.sendTo(room, "Because moderated chat is set, your account must be at least one week old and you must have won at least one ladder game to speak in this room.");
+					connection.sendTo(room, "Étant donné que le modchat est activé, ton compte doit avoir au moins une semaine d'ancienneté et tu dois avoir gagné au moins un match sur le ladder pour parler dans cette room.");
 					return false;
 				}
 			} else if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(room.modchat) && !user.can('bypassall')) {
 				var groupName = Config.groups[room.modchat].name || room.modchat;
-				connection.sendTo(room, "Because moderated chat is set, you must be of rank " + groupName + " or higher to speak in this room.");
+				connection.sendTo(room, "Étant donné que le modchat est activé tu dois être de rang " + groupName + " ou plus pour parler dans cette room.");
 				return false;
 			}
 		}
 	}
 	if (room && !(user.userid in room.users)) {
-		connection.popup("You can't send a message to this room without being in it.");
+		connection.popup("Tu ne peux pas envoyer de message dans cette room sans y être.");
 		return false;
 	}
 
 	if (typeof message === 'string') {
 		if (!message) {
-			connection.popup("Your message can't be blank.");
+			connection.popup("Ton message ne peux pas être vide.");
 			return false;
 		}
 		if (message.length > MAX_MESSAGE_LENGTH && !user.can('ignorelimits')) {
@@ -133,7 +133,7 @@ function canTalk(user, room, connection, message, targetUser) {
 			var normalized = message.trim();
 			if ((normalized === user.lastMessage) &&
 					((Date.now() - user.lastMessageTime) < MESSAGE_COOLDOWN)) {
-				connection.popup("You can't send the same message again so soon.");
+				connection.popup("Tu ne peux pas envoyer d'autres messages pour le moment.");
 				return false;
 			}
 			user.lastMessage = message;
@@ -246,8 +246,8 @@ var Context = exports.Context = (function () {
 			var message = this.canTalk(this.message);
 			if (!message) return false;
 			if (!this.user.can('broadcast', null, this.room)) {
-				this.errorReply("You need to be voiced to broadcast this command's information.");
-				this.errorReply("To see it for yourself, use: /" + message.substr(1));
+				this.errorReply("Tu dois être voice pour utiliser cette commande.");
+				this.errorReply("Pour le voir pour toi même, utilise: /" + message.substr(1));
 				return false;
 			}
 
@@ -255,7 +255,7 @@ var Context = exports.Context = (function () {
 			var normalized = message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
 			if (this.room.lastBroadcast === normalized &&
 					this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN) {
-				this.errorReply("You can't broadcast this because it was just broadcast.");
+				this.errorReply("Tu ne peux pas diffuser cette information car elle vient d'être diffusée.");
 				return false;
 			}
 			this.add('|c|' + this.user.getIdentity(this.room.id) + '|' + (suppressMessage || message));
@@ -299,9 +299,9 @@ var Context = exports.Context = (function () {
 
 			if (!require('./crashlogger.js')(fakeErr, 'A chat command')) {
 				var ministack = ("" + err.stack).escapeHTML().split("\n").slice(0, 2).join("<br />");
-				if (Rooms.lobby) Rooms.lobby.send('|html|<div class="broadcast-red"><b>POKEMON SHOWDOWN HAS CRASHED:</b> ' + ministack + '</div>');
+				if (Rooms.lobby) Rooms.lobby.send('|html|<div class="broadcast-red"><b>UNE FONCTIONALITÉ DU SERVEUR A CRASH:</b> ' + ministack + '</div>');
 			} else {
-				this.sendReply('|html|<div class="broadcast-red"><b>Pokemon Showdown crashed!</b><br />Don\'t worry, we\'re working on fixing it.</div>');
+				this.sendReply('|html|<div class="broadcast-red"><b>Une fonctionalité du serveur a crash!</b><br />Ne t\' inquiète pas, le staff est en train de résoudre le problème.</div>');
 			}
 		}
 		if (result === undefined) result = false;
@@ -318,7 +318,7 @@ var Context = exports.Context = (function () {
 		if (!images) return true;
 		for (var i = 0; i < images.length; i++) {
 			if (!/width=([0-9]+|"[0-9]+")/i.test(images[i]) || !/height=([0-9]+|"[0-9]+")/i.test(images[i])) {
-				this.errorReply('All images must have a width and height attribute');
+				this.errorReply('Toutes les images ont un attribut de largeur et de hauteur.');
 				return false;
 			}
 		}
@@ -335,11 +335,11 @@ var Context = exports.Context = (function () {
 				var tag = tags[i];
 				if (tag.charAt(1) === '/') {
 					if (!stack.length) {
-						this.errorReply("Extraneous </" + tag.substr(2) + "> without an opening tag.");
+						this.errorReply("</" + tag.substr(2) + "> étranger sans un tag d'ouverture.");
 						return false;
 					}
 					if (tag.substr(2) !== stack.pop()) {
-						this.errorReply("Missing </" + tag.substr(2) + "> or it's in the wrong place.");
+						this.errorReply("Tu as oublié un </" + tag.substr(2) + "> ou il n'est pas à la bonne place.");
 						return false;
 					}
 				} else {
@@ -347,7 +347,7 @@ var Context = exports.Context = (function () {
 				}
 			}
 			if (stack.length) {
-				this.errorReply("Missing </" + stack.pop() + ">.");
+				this.errorReply("Tu as oublié un </" + stack.pop() + ">.");
 				return false;
 			}
 		}
@@ -421,7 +421,7 @@ var parse = exports.parse = function (message, room, user, connection, levelsDee
 		levelsDeep = 0;
 	} else {
 		if (levelsDeep > MAX_PARSE_RECURSION) {
-			return connection.sendTo(room, "Error: Too much recursion");
+			return connection.sendTo(room, "Erreur: Trop de récursivité");
 		}
 	}
 
@@ -503,10 +503,10 @@ var parse = exports.parse = function (message, room, user, connection, levelsDee
 			// To guard against command typos, we now emit an error message
 			if (cmdToken === BROADCAST_TOKEN) {
 				if (/[a-z0-9]/.test(cmd.charAt(0))) {
-					return context.errorReply("The command '" + cmdToken + fullCmd + "' was unrecognized.");
+					return context.errorReply("La commande '" + cmdToken + fullCmd + "' n'a pas été reconnue.");
 				}
 			} else {
-				return context.errorReply("The command '" + cmdToken + fullCmd + "' was unrecognized. To send a message starting with '" + cmdToken + fullCmd + "', type '" + cmdToken.repeat(2) + fullCmd + "'.");
+				return context.errorReply("La commande '" + cmdToken + fullCmd + "' n'a pas été reconnue. Pour envoyer un message commencez par '" + cmdToken + fullCmd + "', type '" + cmdToken.repeat(2) + fullCmd + "'.");
 			}
 		} else if (!VALID_COMMAND_TOKENS.includes(message.charAt(0)) && VALID_COMMAND_TOKENS.includes(message.trim().charAt(0))) {
 			message = message.trim();
